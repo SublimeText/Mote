@@ -68,7 +68,7 @@ def show_commands(window):
         
         window.run_command(commands[picked]['command'], commands[picked]['args'])
         
-        print commands[picked]
+        #print commands[picked]
 
 
     sublime.set_timeout(show_quick_panel, 10)
@@ -129,7 +129,7 @@ class MoteSearchThread(threading.Thread):
         self.results = {}
         self.sftp = None
 
-        self.results_lock = threading.Lock()
+        self.results_lock = threading.Condition()
         self.command_deque = deque()
 
         self.add_command('ls','', True)
@@ -148,6 +148,7 @@ class MoteSearchThread(threading.Thread):
     
     def add_command(self, command, path, show=False):
         self.results_lock.acquire()
+        self.results_lock.notify()
         if show:
             self.show_panel_after = True
         self.command_deque.append((command,path))
@@ -166,10 +167,11 @@ class MoteSearchThread(threading.Thread):
         self.connect()
         while True:
             
-            if len(self.command_deque) == 0:
-                continue
+            
             
             self.results_lock.acquire()
+            if len(self.command_deque) == 0:
+                self.results_lock.wait()
             show_panel = self.show_panel_after
             if show_panel == True:
                 self.show_panel_after = False
@@ -211,12 +213,12 @@ class MoteSearchThread(threading.Thread):
     def ls(self, search_path = ''):
         fullpath = cleanpath(self.search_path,search_path)
 
-        results = self.cleanls(fullpath, self.sftp.send('ls ' + fullpath))
+        results = self.cleanls(fullpath, self.sftp.send('ls "%s"' % fullpath))
 
         if self.idle_recursive:
             subfolders = dict((k,v) for k,v in results.items() if v['type'] == 'folder')
             for recur_folder in subfolders:
-                self.add_command('ls',recur_folder)
+                self.add_command('ls',results[recur_folder]['path'])
 
         #print results
         self.results.update(results)
@@ -252,7 +254,7 @@ class MoteSearchThread(threading.Thread):
                 continue
 
             named_path = cleanpath(fullpath,raw_path)
-            path_key = named_path + ('' if path[0] == '-' else '/')
+            path_key = named_path + ('' if path[0] == '-' else '/..')
             
             #print named_path
             paths[path_key] = {}
@@ -269,7 +271,7 @@ class MoteSearchThread(threading.Thread):
         
         key = self.keys[picked]
 
-        print self.results[key]
+        #print self.results[key]
 
         if self.results[key]['type'] == 'folder':
             self.add_command('ls',self.results[key]['path'], True)
@@ -288,6 +290,7 @@ def psftp(connection_string):
     p = subprocess.Popen(r'psftp ' + connection_string, shell=True, bufsize=1024, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)  
     while True:
         command = (yield untilprompt(p,command))
+        #print command
         if command == 'exit':
             untilprompt(p,'exit')
             return
