@@ -1,3 +1,4 @@
+
 # Info
 
 Sublime Text plugin to browse and edit files over sftp/ssh2
@@ -8,20 +9,22 @@ Sublime Text plugin to browse and edit files over sftp/ssh2
 
 # Installation
 
-##Download and install PuTTY, preferably the whole package.
+1. Download this package and save and extract to your packages folder.
+
+2. Download and install PuTTY, preferably the whole package.
 (PuTTYgen is needed to create keys)
 (PuTTY is needed to save sessions, (host,username,key information)
 (Pageant to manage those sessions)
 http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
-##Make psftp accessible to the plugin
+3. Make psftp accessible to the plugin
 Add the PuTTY install folder to `$PATH`
 Usually something like `C:\Program Files\PuTTY`
 
-###or
+   ###or
 
 
-Copy `psftp.exe` to `\Sublime Text 2\Packages\Mote`
+   Copy `psftp.exe` to `\Sublime Text 2\Packages\Mote`
 
 #Usage
 
