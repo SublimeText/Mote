@@ -26,42 +26,68 @@ def main():
 
     return MOTES
 
-def refresh_commands():
+def show_commands(window):
     commands = []
 
     for server in MOTES:
-        commands.append({
-            "caption": "Mote: View - %s" % server,
-            "command": "mote","args":
-            {
-                "server": server
-            }
-        })
-        commands.append({
-            "caption": "Mote: Disconnect - %s" % server,
-            "command": "mote_disconnect","args":
-            {
-                "server": server
-            }
-        })
+        if MOTES[server]['thread'].sftp == None:
+            commands.append({
+                "caption": "Mote: Connect - %s" % server,
+                "command": "mote_view","args":
+                {
+                    "server": server
+                }
+            })
+        else:
+            commands.append({
+                "caption": "Mote: View - %s" % server,
+                "command": "mote_view","args":
+                {
+                    "server": server
+                }
+            })
+            commands.append({
+                "caption": "Mote: Disconnect - %s" % server,
+                "command": "mote_disconnect","args":
+                {
+                    "server": server
+                }
+            })
     
-    commands.append({
-        "caption": "Mote: Status",
-        "command": "mote_status"
-    })
+    #commands.append({
+    #    "caption": "Mote: Status",
+    #    "command": "mote_status"
+    #})
 
-    with open('Mote.sublime-commands','w') as f:
-        json.dump(commands,f,indent = 4)
+    def show_quick_panel():
+        window.show_quick_panel([ x['caption'] for x in commands ], on_select)
+    
+    def on_select(picked):
+        if picked == -1:
+            return
+        
+        window.run_command(commands[picked]['command'], commands[picked]['args'])
+        
+        print commands[picked]
 
+
+    sublime.set_timeout(show_quick_panel, 10)
+
+
+# External Commands
 class MoteCommand(sublime_plugin.WindowCommand):
-    def run(self, server=''):
-        MOTES[server]['thread'].window = self.window
+    def run(self):
+        show_commands(self.window)
 
+
+# Internal Commands
+class MoteViewCommand(sublime_plugin.WindowCommand):
+    def run(self, server):
+        MOTES[server]['thread'].window = self.window
         if MOTES[server]['thread'].sftp == None:
             MOTES[server]['thread'].start()
         else:
             MOTES[server]['thread'].showfilepanel()
-
 
 
 class MoteStatusCommand(sublime_plugin.WindowCommand):
@@ -76,6 +102,9 @@ class MoteStatusCommand(sublime_plugin.WindowCommand):
 class MoteDisconnectCommand(sublime_plugin.WindowCommand):
     def run(self, server=''):
         MOTES[server]['thread'].add_command('exit','')
+
+
+# Listeners
 
 class MoteUploadOnSave(sublime_plugin.EventListener):
     def on_post_save(self, view):
@@ -281,4 +310,3 @@ def untilprompt(proc, strinput = None):
     return buff
 
 MOTES = main()
-refresh_commands()
