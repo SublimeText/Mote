@@ -12,19 +12,21 @@ Sublime Text plugin to browse and edit files over sftp/ssh2
 1. Download this package and save and extract to your packages folder.
 
 2. Download and install PuTTY, preferably the whole package.
-(PuTTYgen is needed to create keys)
-(PuTTY is needed to save sessions, (host,username,key information)
-(Pageant to manage those sessions)
-http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
+
+   - (PuTTYgen is needed to create keys)
+   
+   - (PuTTY is needed to save sessions, (host,username,key information)
+   
+   - (Pageant to manage those sessions)
+   
+   - http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
 
 3. Make psftp accessible to the plugin
-Add the PuTTY install folder to `$PATH`
-Usually something like `C:\Program Files\PuTTY`
+   
+   - Add the PuTTY install folder to `$PATH`
+   Usually something like `C:\Program Files\PuTTY`
 
-   ###or
-
-
-   Copy `psftp.exe` to `\Sublime Text 2\Packages\Mote`
+   - Or, Copy `psftp.exe` to `\Sublime Text 2\Packages\Mote`
 
 #Usage
 
@@ -32,7 +34,7 @@ Usually something like `C:\Program Files\PuTTY`
 
 edit the `Mote\serves.json` file
 
-        {
+    {
         "SERVER_NICKNAME":{
     //connection_string
     //connection string that's going to be passed to psftp
@@ -52,13 +54,23 @@ edit the `Mote\serves.json` file
         }
     }
 
-Then
+## Then Invoke Mote
+
+### Run through the command palette
 
     Ctrl+Shift+P
     Mote
     Enter
+    
+### Or, Add to your keybinds
 
+   `{ "keys": ["ctrl+m"], "command": "mote" }`
+    
 Then
+
+   `Ctrl+m`
+
+## Then browse around and edit
 
 - Browse around. The file list populates as you delve deeper into the file tree.
 - Click on a file to download to a temp folder and open it
