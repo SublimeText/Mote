@@ -25,30 +25,34 @@ Sublime Text plugin to browse and edit files over sftp/ssh2
    - Add the PuTTY install folder to `$PATH`
    Usually something like `C:\Program Files\PuTTY`
 
-   - Or, Copy `psftp.exe` to `\Sublime Text 2\Packages\Mote`
-
 #Usage
 
 ## Add Servers
 
 edit the `Mote\serves.json` file
 
+
+
+connection_string
+  connection string that's going to be passed to psftp
+  See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-pubkey
+
+idle_recursive
+  whether or not Mote should spider your sftp in the background
+
+NOTE: if you wish to place your password here, it cannot contain a '!'
+Due to limitations of psftp
+See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-cmd-pling
+
+### servers.json
+
 ```json
 {
     "SERVER_NICKNAME":{
-//connection_string
-//connection string that's going to be passed to psftp
-//See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-pubkey
         "connection_string": "saved_putty_session_name",
-        
-//idle_recursive
-//whether or not Mote should spider your sftp in the background
         "idle_recursive": true
     },
     "SERVER_NICKNAME2":{
-//NOTE: if you wish to place your password here, it cannot contain a '!'
-//Due to limitations of psftp
-//See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-cmd-pling
         "connection_string": "-pw PASSWORD USERNAME@HOSTNAME_OR_IP",
         "idle_recursive": false
     }
