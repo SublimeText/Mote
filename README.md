@@ -46,6 +46,9 @@ See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-cmd-pli
 
 ### servers.json
 
+Make sure you have a valid json object here.
+http://jsonlint.com/
+
 ```json
 {
     "SERVER_NICKNAME":{
