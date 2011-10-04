@@ -5,6 +5,7 @@
     },
     "SERVER_NICKNAME2":{
         "connection_string": "-pw PASSWORD USERNAME@HOSTNAME_OR_IP",
-        "idle_recursive": false
+        "idle_recursive": false,
+        "default_path": "iniital/path/to/cd/to"
     }
 }

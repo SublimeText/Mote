@@ -40,6 +40,9 @@ connection_string
 idle_recursive
   whether or not Mote should spider your sftp in the background
 
+default_path
+  default path to `cd` into
+
 NOTE: if you wish to place your password here, it cannot contain a '!'
 Due to limitations of psftp
 See http://the.earth.li/~sgtatham/putty/0.61/htmldoc/Chapter6.html#psftp-cmd-pling
@@ -57,7 +60,8 @@ http://jsonlint.com/
     },
     "SERVER_NICKNAME2":{
         "connection_string": "-pw PASSWORD USERNAME@HOSTNAME_OR_IP",
-        "idle_recursive": false
+        "idle_recursive": false,
+        "default_path": "iniital/path/to/open/to"
     }
 }
 ```

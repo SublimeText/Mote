@@ -17,7 +17,8 @@ def main():
     for server in MOTES:
         MOTES[server]['thread'] = MoteSearchThread(server,
             connection_string=MOTES[server]['connection_string'],
-            idle_recursive = MOTES[server]['idle_recursive']
+            idle_recursive = MOTES[server]['idle_recursive'] if 'idle_recursive' in MOTES[server] else False,
+            search_path = MOTES[server]['default_path'] if 'default_path' in MOTES[server] else ''
             )
     
     root = os.path.join(sublime.packages_path(),'Mote','temp')
@@ -121,7 +122,7 @@ class MoteUploadOnSave(sublime_plugin.EventListener):
 class MoteSearchThread(threading.Thread):
     def __init__(self, server, search_path='', connection_string='', idle_recursive=False):
         self.server = server
-        self.search_path = search_path
+        self.search_path = ''
         self.connection_string = connection_string
         self.idle_recursive = idle_recursive
         
@@ -132,7 +133,12 @@ class MoteSearchThread(threading.Thread):
         self.results_lock = threading.Condition()
         self.command_deque = deque()
 
-        self.add_command('ls','', True)
+        
+
+        self.add_command('cd',search_path, True)
+        
+        #self.add_command('cd',self.default_path, False)
+        
 
         threading.Thread.__init__(self)
 
@@ -178,7 +184,7 @@ class MoteSearchThread(threading.Thread):
             command, path = self.get_front_command()
             self.results_lock.release()
 
-            #print command, path, show_panel
+            print command, path, show_panel
 
             if command == 'ls':
                 if show_panel == True:
@@ -195,6 +201,9 @@ class MoteSearchThread(threading.Thread):
                 sublime.set_timeout(lambda:sublime.status_message('Uploading %s' % path),0)
                 self.upload(path)
                 sublime.set_timeout(lambda:sublime.status_message('Finished uploading %s' % path),0)
+            elif command == 'cd':
+                self.sftp.send('cd "%s"' % (path) )
+                self.add_command('ls','', show_panel)
             elif command == 'exit':
                 break
             else:
