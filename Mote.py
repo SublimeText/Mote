@@ -18,7 +18,9 @@ def main():
         MOTES[server]['thread'] = MoteSearchThread(server,
             connection_string=MOTES[server]['connection_string'],
             idle_recursive = MOTES[server]['idle_recursive'] if 'idle_recursive' in MOTES[server] else False,
-            search_path = MOTES[server]['default_path'] if 'default_path' in MOTES[server] else ''
+            search_path = MOTES[server]['default_path'] if 'default_path' in MOTES[server] else '',
+            password = MOTES[server]['password'] if 'password' in MOTES[server] else None,
+            private_key = MOTES[server]['private_key'] if 'private_key' in MOTES[server] else None
             )
     
     root = os.path.join(sublime.packages_path(),'Mote','temp')
@@ -120,10 +122,22 @@ class MoteUploadOnSave(sublime_plugin.EventListener):
         
 
 class MoteSearchThread(threading.Thread):
-    def __init__(self, server, search_path='', connection_string='', idle_recursive=False):
+    def __init__(self, server, search_path='', connection_string='', password=None, idle_recursive=False, private_key=None):
         self.server = server
         self.search_path = ''
         self.connection_string = connection_string
+        
+
+        if ('-pw' not in connection_string) and password:
+            self.connection_string = r'-pw "%s" "%s"' % (password,connection_string)
+        elif '-pw' not in connection_string:
+            self.connection_string = r'"%s"' % connection_string
+        else:
+            self.connection_string = connection_string
+        
+        if private_key:
+            self.connection_string = ('-i %s ' % private_key) + self.connection_string
+
         self.idle_recursive = idle_recursive
         
         

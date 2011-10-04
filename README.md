@@ -42,6 +42,12 @@ idle_recursive
 
 default_path
   default path to `cd` into
+  
+password
+  password for sftp. Use this option if your PuTTY session name or password contains a space
+  
+private_key
+  path to private key. Remember to escape the `\` into `\\`
 
 NOTE: if you wish to place your password here, it cannot contain a '!'
 Due to limitations of psftp
@@ -59,6 +65,19 @@ http://jsonlint.com/
         "idle_recursive": true
     },
     "SERVER_NICKNAME2":{
+        "connection_string": "USERNAME@HOSTNAME_OR_IP",
+        "password":"MYPASSWORD",
+        "idle_recursive": false,
+        "default_path": "iniital/path/to/open/to"
+    },
+    "SERVER_NICKNAME3":{
+        "connection_string": "USERNAME@HOSTNAME_OR_IP",
+        "password":"MYPASSWORD",
+        "private_key":"C:\\PATH\\TO\\PRIVATE\\KEY.ppk",
+        "idle_recursive": false,
+        "default_path": "iniital/path/to/open/to"
+    },
+    "SERVER_NICKNAME4":{
         "connection_string": "-pw PASSWORD USERNAME@HOSTNAME_OR_IP",
         "idle_recursive": false,
         "default_path": "iniital/path/to/open/to"
