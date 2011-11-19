@@ -272,7 +272,7 @@ class MoteSearchThread(threading.Thread):
     def cleanls(self,fullpath, out):
         paths = {}
         for path in out.split('\n')[2:-1]:
-            raw_path = path[55:-1].strip()
+            raw_path = path.rsplit(' ', 1)[-1].strip()
             if raw_path[0] == '.':
                 continue
 
