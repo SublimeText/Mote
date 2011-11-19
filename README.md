@@ -22,8 +22,7 @@ Sublime Text plugin to browse and edit files over sftp/ssh2
 
 3. Make psftp accessible to the plugin
    
-   - Add the PuTTY install folder to `$PATH`
-   Usually something like `C:\Program Files\PuTTY`
+   - Copy `psftp.exe` to `Mote\`
 
 #Usage
 
