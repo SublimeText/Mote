@@ -129,14 +129,12 @@ class MoteSearchThread(threading.Thread):
         
 
         if ('-pw' not in connection_string) and password:
-            self.connection_string = r'-pw "%s" "%s"' % (password,connection_string)
-        elif ' ' in connection_string:
-            self.connection_string = r'"%s"' % connection_string
+            self.connection_string = [r'-pw', password, connection_string]
         else:
-            self.connection_string = connection_string
+            self.connection_string = [connection_string]
         
         if private_key:
-            self.connection_string = ('-i %s ' % private_key) + self.connection_string
+            self.connection_string = ['-i', private_key] + self.connection_string
 
         self.idle_recursive = idle_recursive
         
@@ -147,12 +145,7 @@ class MoteSearchThread(threading.Thread):
         self.results_lock = threading.Condition()
         self.command_deque = deque()
 
-        
-
         self.add_command('cd',search_path, True)
-        
-        #self.add_command('cd',self.default_path, False)
-        
 
         threading.Thread.__init__(self)
 
@@ -294,15 +287,10 @@ class MoteSearchThread(threading.Thread):
         
         key = self.keys[picked]
 
-        #print self.results[key]
-
         if self.results[key]['type'] == 'folder':
             self.add_command('ls',self.results[key]['path'], True)
         elif self.results[key]['type'] == 'file':
             self.add_command('open',self.results[key]['path'])
-            
-        else:
-            pass
 
 
 def cleanpath(*args):
@@ -310,7 +298,7 @@ def cleanpath(*args):
 
 def psftp(connection_string):
     command = ''
-    exe = '"' + os.path.join(sublime.packages_path(),'Mote','psftp.exe') + '" ' + connection_string
+    exe = [os.path.join(sublime.packages_path(),'Mote','psftp.exe')] + connection_string
     print exe
     p = subprocess.Popen(exe, shell=True, bufsize=1024, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
     while True:
