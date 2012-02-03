@@ -75,11 +75,6 @@ http://jsonlint.com/
         "private_key":"C:\\PATH\\TO\\PRIVATE\\KEY.ppk",
         "idle_recursive": false,
         "default_path": "iniital/path/to/open/to"
-    },
-    "SERVER_NICKNAME4":{
-        "connection_string": "-pw PASSWORD USERNAME@HOSTNAME_OR_IP",
-        "idle_recursive": false,
-        "default_path": "iniital/path/to/open/to"
     }
 }
 ```
