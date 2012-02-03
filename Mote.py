@@ -130,7 +130,7 @@ class MoteSearchThread(threading.Thread):
 
         if ('-pw' not in connection_string) and password:
             self.connection_string = r'-pw "%s" "%s"' % (password,connection_string)
-        elif '-pw' not in connection_string:
+        elif ' ' in connection_string:
             self.connection_string = r'"%s"' % connection_string
         else:
             self.connection_string = connection_string
@@ -310,9 +310,15 @@ def cleanpath(*args):
 
 def psftp(connection_string):
     command = ''
-    p = subprocess.Popen(r'psftp ' + connection_string, shell=True, bufsize=1024, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)  
+    exe = '"' + os.path.join(sublime.packages_path(),'Mote','psftp.exe') + '" ' + connection_string
+    print exe
+    p = subprocess.Popen(exe, shell=True, bufsize=1024, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
     while True:
-        command = (yield untilprompt(p,command))
+        try:
+            command = (yield untilprompt(p,command))
+        except Exception as e:
+            print e
+            return
         #print command
         if command == 'exit':
             untilprompt(p,'exit')
@@ -329,10 +335,8 @@ def untilprompt(proc, strinput = None):
         output = proc.stdout.read(1)
         buff += output
 
-        #print buff[-7:-1]
         if buff[-7:-1] == 'psftp>':
             break
-    #print buff
     return buff
 
 MOTES = main()
