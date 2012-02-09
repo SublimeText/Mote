@@ -20,9 +20,10 @@ def main():
             idle_recursive = MOTES[server]['idle_recursive'] if 'idle_recursive' in MOTES[server] else False,
             search_path = MOTES[server]['default_path'] if 'default_path' in MOTES[server] else '',
             password = MOTES[server]['password'] if 'password' in MOTES[server] else None,
-            private_key = MOTES[server]['private_key'] if 'private_key' in MOTES[server] else None
+            private_key = MOTES[server]['private_key'] if 'private_key' in MOTES[server] else None,
+            port = MOTES[server]['port'] if 'port' in MOTES[server] else None
             )
-    
+
     root = os.path.join(sublime.packages_path(),'Mote','temp')
     if os.path.exists(root):
         shutil.rmtree(root)
@@ -56,7 +57,7 @@ def show_commands(window):
                     "server": server
                 }
             })
-    
+
     #commands.append({
     #    "caption": "Mote: Status",
     #    "command": "mote_status"
@@ -64,13 +65,13 @@ def show_commands(window):
 
     def show_quick_panel():
         window.show_quick_panel([ x['caption'] for x in commands ], on_select)
-    
+
     def on_select(picked):
         if picked == -1:
             return
-        
+
         window.run_command(commands[picked]['command'], commands[picked]['args'])
-        
+
         #print commands[picked]
 
 
@@ -119,26 +120,29 @@ class MoteUploadOnSave(sublime_plugin.EventListener):
             server_path = posixpath.join(*relpath.split(os.sep)[1:])
             MOTES[server]['thread'].add_command('save',server_path)
 
-        
+
 
 class MoteSearchThread(threading.Thread):
-    def __init__(self, server, search_path='', connection_string='', password=None, idle_recursive=False, private_key=None):
+    def __init__(self, server, search_path='', connection_string='', password=None, idle_recursive=False, private_key=None, port=None):
         self.server = server
         self.search_path = ''
         self.connection_string = connection_string
-        
+
 
         if ('-pw' not in connection_string) and password:
             self.connection_string = [r'-pw', password, connection_string]
         else:
             self.connection_string = [connection_string]
-        
+
         if private_key:
             self.connection_string = ['-i', private_key] + self.connection_string
 
+        if port:
+            self.connection_string = ['-P', port] + self.connection_string
+
         self.idle_recursive = idle_recursive
-        
-        
+
+
         self.results = {}
         self.sftp = None
 
@@ -154,11 +158,11 @@ class MoteSearchThread(threading.Thread):
             self.sftp = psftp(self.connection_string)
             self.sftp.next()
         return self
-    
+
     def disconnect(self):
         self.add_command('exit','')
         return self
-    
+
     def add_command(self, command, path, show=False):
         self.results_lock.acquire()
         self.results_lock.notify()
@@ -166,22 +170,22 @@ class MoteSearchThread(threading.Thread):
             self.show_panel_after = True
         self.command_deque.append((command,path))
         self.results_lock.release()
-    
+
     def get_front_command(self):
-        
+
         if len(self.command_deque) > 0:
             return self.command_deque.pop()
         else:
             return (None,None)
-        
+
 
     def run(self):
         sublime.set_timeout(lambda:sublime.status_message('Connecting to %s' % self.server),0)
         self.connect()
         while True:
-            
-            
-            
+
+
+
             self.results_lock.acquire()
             if len(self.command_deque) == 0:
                 self.results_lock.wait()
@@ -215,17 +219,17 @@ class MoteSearchThread(threading.Thread):
                 break
             else:
                 pass
-            
-            
+
+
         sublime.set_timeout(lambda:sublime.status_message('Disconnectin from %s' % self.server),0)
         try:
             self.sftp.send('exit')
         except StopIteration:
             pass
         self.sftp = None
-        
+
         threading.Thread.__init__(self)
-    
+
     def ls(self, search_path = ''):
         fullpath = cleanpath(self.search_path,search_path)
 
@@ -238,7 +242,7 @@ class MoteSearchThread(threading.Thread):
 
         #print results
         self.results.update(results)
-    
+
     def download(self, path):
         localpath = os.path.normpath(os.path.join(sublime.packages_path(),'Mote','temp',self.server,path))
 
@@ -248,14 +252,14 @@ class MoteSearchThread(threading.Thread):
         self.sftp.send('get "%s" "%s"' % (path,localpath) )
 
         sublime.set_timeout(lambda:self.window.open_file(localpath), 0)
-        
+
 
         pass
-    
+
     def upload(self, path):
         localpath = os.path.normpath(os.path.join(sublime.packages_path(),'Mote','temp',self.server,path))
         self.sftp.send('put "%s" "%s"' % (localpath,path) )
-    
+
     def showfilepanel(self):
         self.keys = sorted(self.results.keys())
         def show_quick_panel():
@@ -271,7 +275,7 @@ class MoteSearchThread(threading.Thread):
 
             named_path = cleanpath(fullpath,raw_path)
             path_key = named_path + ('' if path[0] == '-' else '/..')
-            
+
             #print named_path
             paths[path_key] = {}
             paths[path_key]['path'] = named_path
@@ -284,7 +288,7 @@ class MoteSearchThread(threading.Thread):
             return
         if not self.results:
             return
-        
+
         key = self.keys[picked]
 
         if self.results[key]['type'] == 'folder':
@@ -311,7 +315,7 @@ def psftp(connection_string):
         if command == 'exit':
             untilprompt(p,'exit')
             return
-        
+
 
 def untilprompt(proc, strinput = None):
     if strinput:
@@ -319,7 +323,7 @@ def untilprompt(proc, strinput = None):
         proc.stdin.flush()
     buff = ''
     while proc.poll() == None:
-        
+
         output = proc.stdout.read(1)
         buff += output
 
